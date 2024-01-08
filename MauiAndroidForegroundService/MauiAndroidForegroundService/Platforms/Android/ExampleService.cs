@@ -5,12 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
+using Android.Content.PM;
 using Android.OS;
 using AndroidX.Core.App;
 
 namespace MauiAndroidForegroundService.Platforms.Android;
 
-[Service]
+[Service(Name = "MauiAndroidForegroundService.Platforms.Android.ExampleService",
+         ForegroundServiceType = ForegroundService.TypeDataSync)]
+
 internal class ExampleService : Service
 {
     public override IBinder OnBind(Intent intent)
@@ -23,7 +26,7 @@ internal class ExampleService : Service
         var input = intent.GetStringExtra("inputExtra");
 
         var notificationIntent = new Intent(this, typeof(MainActivity));
-        var pendingIntent = PendingIntent.GetActivity(this, 0, notificationIntent, 0);
+        var pendingIntent = PendingIntent.GetActivity(this, 0, notificationIntent, PendingIntentFlags.Immutable);
 
         var notification = new NotificationCompat.Builder(this, MainApplication.ChannelId)
             .SetContentTitle("Example Service")
@@ -36,7 +39,7 @@ internal class ExampleService : Service
         // Settings | Developer Options | Running Services
 
         // Don't forget for Foreground service need to update AndroidManifest.xml with <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-        StartForeground(1, notification);
+        StartForeground(1, notification, ForegroundService.TypeDataSync);
 
         // This does not start on it's own thread, so be careful if running a long running service
         // on a UI thread and instead fire up a background task
